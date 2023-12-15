@@ -64,12 +64,47 @@ class PokemonViewController: UIViewController {
         let userAnswer = (sender.title(for: .normal) ?? "")
         
         if self.gameModel.checkAnswer(userAnswer, correctAnswer) {
-            self.lblMessage.text = "Sí, es un \(userAnswer)"
+            self.lblMessage.text = "Sí, es un \(userAnswer.capitalized)"
             lblScore.text = "Puntaje \(gameModel.getScore())"
             
             sender.layer.borderColor = UIColor.systemGreen.cgColor
             sender.layer.borderWidth = 2
+    
+            let url = URL(string: correctAnswerImage)
+            pokemonImg.kf.setImage(with: url)
+            
+            
+            Timer.scheduledTimer(withTimeInterval: 0.8, repeats: false){ timer in
+                self.pokemonManager.fetchPokemonApi()
+                self.lblMessage.text = ""
+                sender.layer.borderWidth = 0
+            }
+            
+        } else {
+            self.lblMessage.text = "No, es un \(userAnswer.capitalized)"
+            
+            sender.layer.borderColor = UIColor.systemRed.cgColor
+            sender.layer.borderWidth = 2
+            
+            let url = URL(string: correctAnswerImage)
+            pokemonImg.kf.setImage(with: url)
+            gameModel.setScore(score: 0)
+            
+            Timer.scheduledTimer(withTimeInterval: 0.8, repeats: false){ timer in
+                self.resetGame()
+                sender.layer.borderWidth = 0
+            }
+            
         }
+    }
+    
+    func resetGame() {
+        self.pokemonManager.fetchPokemonApi()
+        gameModel.setScore(score: 0)
+        lblScore.text = "Puntaje: \(gameModel.getScore())"
+        
+        self.lblMessage.text = ""
+        
     }
 }
 
